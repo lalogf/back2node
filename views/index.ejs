@@ -1,0 +1,81 @@
+<!doctype html>
+
+<html>
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+
+</head>
+<body>
+	<div class="container">
+		<h1>Hello world!</h1>
+		<a href="" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modal</a>
+
+
+		<h2>Users</h2>
+	
+		<table class="table">
+			<tr>
+				<th> ID </th>
+				<th> Firstname </th>
+				<th> Lastname </th>
+				<th> Username </th>
+				<th> Password </th>
+				<th> Other </th>
+			</tr>
+			<% users.forEach(function(user){ %>
+			<tr>
+				<td><%= user.id %></td>
+				<td><%= user.first_name %></td>
+				<td><%= user.last_name %></td>
+				<td><%= user.username %></td>
+				<td><%= user.password %></td>
+				<td> <a href="" class="btn btn-danger">Delete</a> <a href="" class="btn btn-warning">Edit</a></td>
+			</tr>
+			<% });%>
+		</table>
+	</div>
+
+
+	<div class="modal fade" id="myModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Create new user</h4>
+				</div>
+				<form method="post" action="/signup">
+					<div class="modal-body">
+						<label> First Name</label>
+						<input name="firstname" id="first_name" class="form-control" placeholder="Name">
+						<br>
+						<label> Last Name</label>
+						<input name="lastname" id="last_name" class="form-control" placeholder="Last Name">
+						<br>
+						<label> Username</label>
+						<input name="username" id="user_name" class="form-control" placeholder="Username">
+						<br>
+						<label>Password</label>
+						<input type="password" name="password" id="user_password" class="form-control" placeholder="Password">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button id="save-user" type="submit" class="btn btn-success">Save changes</button>
+					</div>
+				</form>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+
+
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</body>
+</html> 
