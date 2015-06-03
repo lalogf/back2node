@@ -3,7 +3,8 @@ var express = require('express'),
   	app = express(),
   	models = require('./models/index'),
   	methodOverride = require ('method-override'),
-  	engine = require('ejs-locals');
+  	engine = require('ejs-locals'),
+  	pg = require('pg');
 
 
 app.set("view engine" , "ejs");
@@ -12,6 +13,40 @@ app.engine('ejs', engine);
 app.use(bodyParser.urlencoded({
 	extended:true
 }));
+
+
+var passport = require("passport"),
+    localStrategy = require("passport-local").Strategy,
+    flash = require('connect-flash'),
+    session = require("cookie-session");
+    bcrypt = require('bcrypt')
+
+app.use(session( {
+  secret: 'thisismysecretkey',
+  name: 'chocolate chip',
+  maxage: 3600000
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done){
+    models.User.find({
+        where: {
+            id: id
+        }
+    }).done(function(error,user){
+        done(error, user);
+    });
+});
+
+
 
 
 // tell your app to use the module
@@ -31,17 +66,19 @@ app.get('/', function (req, res){
 });
 
 app.post('/signup',function (req, res){
-	models.User.create({
+	models.User.createNewUser({
 		first_name: req.body.firstname,
 		last_name: req.body.lastname,
 		username: req.body.username,
 		password: req.body.password
-	}).then(function (user){
-		res.redirect('/')
-	},function (error){
-		req.flash('info', error);
-		res.redirect('/')
 	});
+	res.redirect('/');
+	
+	// ,
+	// function (error){
+	// 	req.flash('info', error);
+	// 	res.redirect('/')
+	// };
 });
 
 app.get('/edit/:id', function (req, res) {
@@ -84,20 +121,6 @@ app.delete('/delete/:id', function (req, res){
         });
     });
 });
-
-
-// app.put('/edit/:id', function (req, res){
-//     models.User.find(req.params.id).success(function (user){
-//         user.updateAttributes({
-//             first_name: req.body.firstname,
-//             last_name: req.body.lastname,
-//             age: req.body.age
-//         }) 
-//         .success(function(){
-//             res.redirect("/");
-//         });
-//     });
-// });
 
 
 app.listen(3000);
