@@ -3,7 +3,7 @@
 <h1>Hello world <%= user.first_name %> <%= user.last_name %></h1>
 <div class="row">
 	<div class="col-md-6">
-		<form method="put" action="/edit/<%= user.id%>?_method=put">
+		<form method="post" action="/edit/<%= user.id%>?_method=put">
 			<label>Firstname</label>
 			<input class="form-control" name="firstname" value="<%=user.first_name%>">
 			<br>
@@ -16,7 +16,18 @@
 			<label>Password</label>
 			<input class="form-control" name="password" value="<%=user.password%>">
 			<br>
-			<button id="save-user" type="submit" class="btn btn-primary">Save user</button>
+			<div class="col-md-3">
+				<button class="btn btn-default">Cancel</button>
+			</div>
+			<div class="col-md-3">
+				<button id="save-user" type="submit" class="btn btn-primary">Save user</button>
+			</div>
+			
+		</form>
+		<form method="post" action="/delete/<%= user.id%>?_method=delete">
+		<div class="col-md-3">
+			<button type="submit" id="<%=user.id%>"class="btn btn-danger delete" >Delete user</button>
+			</div>
 		</form>
 	</div>
 </div>

@@ -45,10 +45,10 @@ app.post('/signup',function (req, res){
 });
 
 app.get('/edit/:id', function (req, res) {
-	var userId = parseInt(req.params.id, 10);
+	// var userId = parseInt(req.params.id, 10);
 	var templateData = {};
 	models.User.findOne({
-			where: {id: userId}
+			where: {id: req.params.id}
 		}).then(function (user) {
 			templateData.user = user
 		}).finally(function(){
@@ -56,29 +56,34 @@ app.get('/edit/:id', function (req, res) {
 		});
 });
 
-// app.put('/edit/:id',function (req, res) {
-// 	var userId = parseInt(req.params.id, 10);
-// 	var templateData = {}; 
-// 	models.User.findOne(userId).then(function (user){
-// 		user.updateAttributes({
-// 			first_name: req.body.firstname,
-// 			last_name: req.body.lastname,
-// 			username: req.body.username,
-// 			password: req.body.password
-// 		})
-// 		.success(function (){
-// 			res.redirect('/');
-// 		});
-// 	});
-// });
-// app.delete('/delete/:id', function (req, res){
-// 	console.log(this);
-//     models.User.find(req.params.id).success(function (user){
-//         user.destroy().success(function(){
-//             res.redirect('/');
-//         });
-//     });
-// });
+app.put('/edit/:id',function (req, res) {
+	var templateData = {}; 
+	models.User.findOne({
+		where : {id: req.params.id}
+	}).then(function (user){
+		user.updateAttributes({
+			first_name: req.body.firstname,
+			last_name: req.body.lastname,
+			username: req.body.username,
+			password: req.body.password
+		})
+		.then(function(){
+			res.redirect('/');
+		});
+	});
+});
+
+
+
+app.delete('/delete/:id', function (req, res){
+    models.User.findOne({
+    	where: {id: req.params.id}
+    }).then(function (user){
+        user.destroy().then(function(){
+            res.redirect('/');
+        });
+    });
+});
 
 
 // app.put('/edit/:id', function (req, res){
