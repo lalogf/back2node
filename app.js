@@ -4,11 +4,13 @@ var express = require('express'),
   	models = require('./models/index'),
   	methodOverride = require ('method-override'),
   	engine = require('ejs-locals'),
-  	pg = require('pg');
+  	pg = require('pg'),
+  	port = process.env.PORT || 3000;
 
 
 app.set("view engine" , "ejs");
 app.engine('ejs', engine);
+
 
 app.use(bodyParser.urlencoded({
 	extended:true
@@ -28,22 +30,32 @@ app.use(session( {
   })
 );
 
+app.use(session({
+  keys:['key']
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done){
-    models.User.find({
-        where: {
-            id: id
-        }
-    }).done(function(error,user){
-        done(error, user);
-    });
+// passport.deserializeUser(function(id, done){
+//     models.User.find({
+//         where: {
+//             id: id
+//         }
+//     }).done(function(error,user){
+//         done(error, user);
+//     });
+// });
+
+
+passport.deserializeUser(function(obj, done) {
+  done(null, false);  // invalidates the existing login session.
 });
 
 
@@ -53,26 +65,35 @@ passport.deserializeUser(function(id, done){
 app.use(bodyParser.urlencoded());
 app.use(methodOverride("_method"));
 
+
 app.get('/', function (req, res){
 	var templateData ={
-        messages: "Hello"
+        message: "",
     };
-	models.User.findAll().
+    if(req.isAuthenticated()){
+    	models.User.findAll().
 	then(function (users){
 		templateData.users = users;
 	}).finally(function(){
+		templateData.isAuthenticated = req.isAuthenticated();
+		templateData.userInfo= req.user;
 		res.render('index', templateData)
 	});
+    } else {
+    	templateData.isAuthenticated = false;
+    	res.render('index.ejs',templateData)
+    }
 });
 
-app.post('/signup',function (req, res){
+app.post('/signup', function (req, res){
 	models.User.createNewUser({
 		first_name: req.body.firstname,
 		last_name: req.body.lastname,
 		username: req.body.username,
 		password: req.body.password
 	});
-	res.redirect('/');
+	res.redirect('/success');
+	
 	
 	// ,
 	// function (error){
@@ -82,7 +103,6 @@ app.post('/signup',function (req, res){
 });
 
 app.get('/edit/:id', function (req, res) {
-	// var userId = parseInt(req.params.id, 10);
 	var templateData = {};
 	models.User.findOne({
 			where: {id: req.params.id}
@@ -92,6 +112,7 @@ app.get('/edit/:id', function (req, res) {
 			res.render('edit.ejs',templateData)
 		});
 });
+
 
 app.put('/edit/:id',function (req, res) {
 	var templateData = {}; 
@@ -123,4 +144,24 @@ app.delete('/delete/:id', function (req, res){
 });
 
 
-app.listen(3000);
+//	Set up login POST route to be handled thorugh Passport 
+app.get('/login', function (req, res){
+	res.render('login.ejs', {message: req.flash('loginMessage')})
+});
+
+app.post('/login', passport.authenticate('local', {
+	successRedirect: "/",
+	failureRedirect: "/login"
+}));
+
+app.get('/success', function (req, res){
+	res.render('success.ejs')
+});
+
+app.get("/logout", function (req, res){
+	req.logout();
+	res.redirect("/")
+});
+
+app.listen(port);
+console.log('The magic happens on port ' + port)
